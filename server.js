@@ -1,6 +1,6 @@
-const express = require('express');
-const inquirer = require('inquirer');
-const { Pool } = require('pg');
+const express = require("express");
+const inquirer = require("inquirer");
+const { Pool } = require("pg");
 
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -12,70 +12,114 @@ app.use(express.json());
 const pool = new Pool(
   {
     //PostgreSQL username
-    user: 'postgres',
+    user: "postgres",
     //PostgreSQL password
-    password: 'Troll571',
-    host: 'localhost',
+    password: "Troll571",
+    host: "localhost",
     //PostgreSQL DB
-    database: 'employees_db'
+    database: "employees_db",
   },
   console.log(`Connected to the database.`)
-)
+);
 
 pool.connect();
 
 const questions = [
-    {type: "list",
+  {
+    type: "list",
     name: "actions",
     message: "What would you like to do?",
-    choices: ['View Departments', 'View Roles', 'View Employees',
-      'Add Department', 'Add Role', 'Add Employee', "Update Employee's Role"
-    ]},
-]
+    choices: [
+      "View Departments",
+      "View Roles",
+      "View Employees",
+      "Add Department",
+      "Add Role",
+      "Add Employee",
+      "Update Employee Role",
+    ],
+  },
+];
 
 //View all departments
-function viewDepartments () {
-
+function viewDepartments() {
+  console.log("Viewing Departments");
+  pool.query('SELECT id, department_name FROM departments', (err, res) => {
+    if (err) {
+      console.error('Error Retrieving Data')
+    } else {
+      console.table(res.rows)
+    }
+    init();
+  })
 }
 
 //View all roles
-function viewRoles () {
-  
+function viewRoles() {
+  console.log("Viewing Roles");
+  pool.query('SELECT id, job_title, salary, department_id FROM roles', (err, res) => {
+    if (err) {
+      console.error('Error Retrieving Data')
+    } else {
+      console.table(res.rows)
+    }
+    init();
+  })
 }
 
 //View all employees
-function viewEmployees () {
-  
+function viewEmployees() {
+  console.log("Viewing Employees");
 }
 
 //Add a role
-function addRole () {
-  
+function addRole() {
+  console.log("Adding Role");
 }
 
 //Add a department
-function addDepartment () {
-  
+function addDepartment() {
+  console.log("Adding Department");
 }
 
 //Add an employee
-function addEmployee () {
-  
+function addEmployee() {
+  console.log("Adding Employee");
 }
 
 //Update an employee role
-function updateEmployee () {
-
+function updateEmployeeRole() {
+  console.log("Updating Employee Role");
 }
 
-
 function init() {
-  inquirer
-    .prompt(questions)
-    .then((response) =>
-      console.log('Hi')
-    )};
-
+  inquirer.prompt(questions).then((response) => {
+    
+    switch (response.actions) {
+      case "View Departments":
+        viewDepartments();
+        break;
+      case "View Roles":
+        viewRoles();
+        break;
+      case "View Employees":
+        viewEmployees();
+        break;
+      case "Add Department":
+        addDepartment();
+        break;
+      case "Add Role":
+        addRole();
+        break;
+      case "Add Employee":
+        addEmployee();
+        break;
+      case "Update Employee Roles":
+        updateEmployeeRole();
+        break;
+    }
+  });
+}
 
 init();
 
@@ -84,6 +128,5 @@ app.use((req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
-  
+  console.log(`Server running on port ${PORT}`);
+});
