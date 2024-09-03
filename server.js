@@ -8,6 +8,7 @@ const app = express();
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
+//Connect to DB
 const pool = new Pool(
   {
     //PostgreSQL username
@@ -23,14 +24,28 @@ const pool = new Pool(
 
 pool.connect();
 
-const questions = {
-  {
-    type: "list",
-    name: "actions",
-    message: "What would you like to do?",
-    choices: [],
-  },
-}
+// const questions = {
+//   {
+//     type: "list",
+//     name: "actions",
+//     message: "What would you like to do?",
+//     choices: [],
+//   },
+// }
+
+//View all departments
+    //Format Table
+    //Department Names
+    //Department Ids
+
+
+//View all roles
+//View all employees
+//Add a role
+//Add a department
+//Ad an employee
+//Update an employee role
+
 app.use((req, res) => {
   res.status(404).end();
 });
