@@ -1,0 +1,13 @@
+{
+    "name": "employee-tracker",
+    "version": "1.0.0",
+    "description": "",
+    "main": "server.js",
+    "author": "",
+    "license": "MIT",
+    "dependencies": {
+      "express": "^4.19.2",
+      "inquirer": "^8.2.6",
+      "pg": "^8.12.0"
+    }
+  }
