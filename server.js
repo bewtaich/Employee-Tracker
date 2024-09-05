@@ -70,11 +70,28 @@ function viewRoles() {
 //View all employees
 function viewEmployees() {
   console.log("Viewing Employees");
+  pool.query('SELECT first_name AS First, last_name AS Last, role_id, manager_id FROM employees', (err, res) => {
+    if (err) {
+      console.error('Error Retrieving Data')
+    } else {
+      console.table(res.rows)
+    }
+    init();
+  })
 }
 
 //Add a role
 function addRole() {
   console.log("Adding Role");
+  const roleQ = {
+    name: role,
+    message: 'What Role would you like to add?'
+  }
+  inquirer.prompt(roleQ).then(response => {
+    
+  }
+
+  ) 
 }
 
 //Add a department
