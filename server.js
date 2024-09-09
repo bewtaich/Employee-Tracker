@@ -44,7 +44,7 @@ const questions = [
 //View all departments
 function viewDepartments() {
   console.log("Viewing Departments");
-  pool.query('SELECT id, department_name FROM departments', (err, res) => {
+  pool.query('SELECT id as department_id, department_name FROM departments', (err, res) => {
     if (err) {
       console.error('Error Retrieving Data')
     } else {
@@ -70,7 +70,7 @@ function viewRoles() {
 //View all employees
 function viewEmployees() {
   console.log("Viewing Employees");
-  pool.query('SELECT first_name AS First, last_name AS Last, role_id, manager_id FROM employees', (err, res) => {
+  pool.query('SELECT first_name, last_name, role_id, manager_id FROM employees', (err, res) => {
     if (err) {
       console.error('Error Retrieving Data')
     } else {
@@ -83,10 +83,25 @@ function viewEmployees() {
 //Add a role
 function addRole() {
   console.log("Adding Role");
-  const roleQ = {
-    name: role,
-    message: 'What Role would you like to add?'
+
+  const departments = 
+
+  const roleQ = [{
+    name: 'title',
+    message: 'What is the Title of the role you would like to add?'
+  },
+  {
+    name:'salary',
+    message:'What is the annual salary of this role?'
+  },
+  {
+    type:'list',
+    name:'department',
+    message:'In what Department does this Role work?',
+    choices:departments
+
   }
+]
   inquirer.prompt(roleQ).then(response => {
     
   }
