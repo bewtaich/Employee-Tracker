@@ -92,14 +92,14 @@ function viewEmployees() {
 //Add a role
 function addRole() {
   console.log("Adding Role");
-  //Getting departments to choose from
+  //Fetch departments
   pool.query("SELECT id, department_name FROM departments", (err, res) => {
     if (err) {
       console.error("Error Retrieving Data", err);
       return;
     }
 
-    //Displaying name for prompt but capturing value of id
+    //Map for inquirer
     const departments = res.rows.map((department) => ({
       name: department.department_name,
       value: department.id,
@@ -124,7 +124,6 @@ function addRole() {
 
     inquirer.prompt(roleQ).then((response) => {
       const { title, salary, department } = response;
-      console.log(response)
       pool.query(
         "INSERT INTO roles (job_title, salary, department_id) VALUES ($1, $2, $3)",
         [title, salary, department],
@@ -141,25 +140,24 @@ function addRole() {
   init();
 }
 //Add a department
-function addDepartment() {
+async function addDepartment() {
   console.log("Adding Department");
-  const dept = [{
-    name:'department',
-    message:'What is the name of the Department?'
-  }]
-  inquirer.prompt(dept).then((response)=>{
-    const {department} = response;
-    pool.query(
-        "INSERT INTO departments (department_name) VALUES ($1)",
-        [department],
-        (err,res)=>{
-          if (err){
-            console.error("Error Adding Department",err)
-          } else {
-            console.log("Department Successfully Added")
-          }
-        })
-  })
+  const dept = [
+    {
+      name: "department",
+      message: "What is the name of the Department?",
+    },
+  ];
+  try {
+    const response = await inquirer.prompt(dept);
+    const { department } = response;
+    await pool.query("INSERT INTO departments (department_name) VALUES ($1)", [
+        department,
+      ]);
+    console.log("Department Successfully Added");
+  } catch (err) {
+    console.error("Error Adding Department", err);
+  }
   init();
 }
 
@@ -168,58 +166,103 @@ async function addEmployee() {
   console.log("Adding Employee");
 
   const rolesQuery = await pool.query("SELECT id, job_title FROM roles");
-  const roles = rolesQuery.rows.map(role=>({
+  const roles = rolesQuery.rows.map((role) => ({
     name: role.job_title,
     value: role.id,
-  }))
+  }));
 
-  const managerQuery = await pool.query("SELECT id, first_name, last_name FROM employees");
-  const managers = managerQuery.rows.map(manager=>({
-    name:`${manager.first_name} ${manager.last_name}`,
+  const managerQuery = await pool.query(
+    "SELECT id, first_name, last_name FROM employees"
+  );
+  const managers = managerQuery.rows.map((manager) => ({
+    name: `${manager.first_name} ${manager.last_name}`,
     value: manager.id,
-  }))
+  }));
 
   const employeeQ = [
     {
-      name:'first',
-      message:"What is the Employee's First Name?"
+      name: "first",
+      message: "What is the Employee's First Name?",
     },
     {
-      name:'last',
-      message:"What is the Employee's Last Name?"
+      name: "last",
+      message: "What is the Employee's Last Name?",
     },
     {
-      type:'list',
-      name:'role',
-      message:"What is the Employee's Role?",
-      choices:roles
+      type: "list",
+      name: "role",
+      message: "What is the Employee's Role?",
+      choices: roles,
     },
     {
-      type:'list',
-      name:'manager',
-      message:"Who is this Employee's Manager?",
-      choices:managers
-    }
-  ]
-  inquirer.prompt(employeeQ).then((response)=>{
-    const {first, last, role, manager} = response;
+      type: "list",
+      name: "manager",
+      message: "Who is this Employee's Manager?",
+      choices: managers,
+    },
+  ];
+  inquirer.prompt(employeeQ).then((response) => {
+    const { first, last, role, manager } = response;
     pool.query(
       "INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES ($1,$2,$3,$4)",
-        [first, last, role, manager],
-        (err,res)=>{
-          if (err){
-            console.error("Error Adding Department",err)
-          } else {
-            console.log("Employee Successfully Added")
-          }
-        })
-  })
+      [first, last, role, manager],
+      (err, res) => {
+        if (err) {
+          console.error("Error Adding Department", err);
+        } else {
+          console.log("Employee Successfully Added");
+        }
+      }
+    );
+  });
   init();
 }
 
 //Update an employee role
-function updateEmployeeRole() {
+async function updateEmployeeRole() {
   console.log("Updating Employee Role");
+
+  //Fetch employees and roles
+  const employeeQuery = await pool.query(
+    "SELECT id, first_name, last_name FROM employees"
+  );
+  const roleQuery = await pool.query("SELECT id, job_title FROM roles");
+
+  //Map for inquirer
+  const employee = employeeQuery.rows.map((employee) => ({
+    name: `${employee.first_name} ${employee.last_name}`,
+    value: employee.id,
+  }));
+  const role = roleQuery.rows.map((role) => ({
+    name: role.job_title,
+    value: role.id,
+  }));
+
+  const updateQ = [
+    {
+      type: "list",
+      name: "employee",
+      message: "Which employee would you like to update?",
+      choices: employee,
+    },
+    {
+      type: "list",
+      name: "role",
+      message: "Which role would like to give this employee?",
+      choices: role,
+    },
+  ];
+
+  inquirer.prompt(updateQ).then((response) => {
+    const { employee, role } = response;
+    pool.query("UPDATE employees SET role_id = $1 WHERE id = $2", [
+      role,
+      employee,
+    ]);
+
+    console.log("Employee Successfully Updated");
+  });
+  init();
 }
 
 function init() {
@@ -243,7 +286,7 @@ function init() {
       case "Add Employee":
         addEmployee();
         break;
-      case "Update Employee Roles":
+      case "Update Employee Role":
         updateEmployeeRole();
         break;
     }
