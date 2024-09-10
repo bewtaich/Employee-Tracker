@@ -1,10 +1,10 @@
 INSERT INTO departments (department_name)
 VALUES
-    ('dept1'),
-    ('dept2'),
-    ('dept3'),
-    ('dept4'),
-    ('dept5');
+    ('Department 1'),
+    ('Department 2'),
+    ('Department 3'),
+    ('Department 4'),
+    ('Department 5');
 
 INSERT INTO roles (job_title, salary, department_id)
 VALUES

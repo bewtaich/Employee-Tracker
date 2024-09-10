@@ -44,71 +44,99 @@ const questions = [
 //View all departments
 function viewDepartments() {
   console.log("Viewing Departments");
-  pool.query('SELECT id as department_id, department_name FROM departments', (err, res) => {
-    if (err) {
-      console.error('Error Retrieving Data')
-    } else {
-      console.table(res.rows)
+  pool.query(
+    "SELECT id as department_id, department_name FROM departments",
+    (err, res) => {
+      if (err) {
+        console.error("Error Retrieving Data", err);
+      } else {
+        console.table(res.rows);
+      }
+      init();
     }
-    init();
-  })
+  );
 }
 
 //View all roles
 function viewRoles() {
   console.log("Viewing Roles");
-  pool.query('SELECT id, job_title, salary, department_id FROM roles', (err, res) => {
-    if (err) {
-      console.error('Error Retrieving Data')
-    } else {
-      console.table(res.rows)
+  pool.query(
+    "SELECT id, job_title, salary, department_id FROM roles",
+    (err, res) => {
+      if (err) {
+        console.error("Error Retrieving Data", err);
+      } else {
+        console.table(res.rows);
+      }
+      init();
     }
-    init();
-  })
+  );
 }
 
 //View all employees
 function viewEmployees() {
   console.log("Viewing Employees");
-  pool.query('SELECT first_name, last_name, role_id, manager_id FROM employees', (err, res) => {
-    if (err) {
-      console.error('Error Retrieving Data')
-    } else {
-      console.table(res.rows)
+  pool.query(
+    "SELECT first_name, last_name, role_id, manager_id FROM employees",
+    (err, res) => {
+      if (err) {
+        console.error("Error Retrieving Data", err);
+      } else {
+        console.table(res.rows);
+      }
+      init();
     }
-    init();
-  })
+  );
 }
 
 //Add a role
 function addRole() {
   console.log("Adding Role");
+  pool.query("SELECT id, department_name FROM departments", (err, res) => {
+    if (err) {
+      console.error("Error Retrieving Data", err);
+      return;
+    }
 
-  const departments = 
+    const departments = res.rows.map((department) => ({
+      name: department.department_name,
+      value: department.id,
+    }));
 
-  const roleQ = [{
-    name: 'title',
-    message: 'What is the Title of the role you would like to add?'
-  },
-  {
-    name:'salary',
-    message:'What is the annual salary of this role?'
-  },
-  {
-    type:'list',
-    name:'department',
-    message:'In what Department does this Role work?',
-    choices:departments
+    const roleQ = [
+      {
+        name: "title",
+        message: "What is the Title of the role you would like to add?",
+      },
+      {
+        name: "salary",
+        message: "What is the annual salary of this role?",
+      },
+      {
+        type: "list",
+        name: "department",
+        message: "In what Department does this Role work?",
+        choices: departments,
+      },
+    ];
 
-  }
-]
-  inquirer.prompt(roleQ).then(response => {
-    
-  }
-
-  ) 
+    inquirer.prompt(roleQ).then((response) => {
+      const { title, salary, department } = response;
+      console.log(response)
+      pool.query(
+        "INSERT INTO roles (job_title, salary, department_id) VALUES ($1, $2, $3)",
+        [title, salary, department],
+        (err, res) => {
+          if (err) {
+            console.error("Error Adding Role", err);
+          } else {
+            console.log("Role Successfully Added");
+          }
+        }
+      );
+    });
+  });
 }
-
 //Add a department
 function addDepartment() {
   console.log("Adding Department");
@@ -126,7 +154,6 @@ function updateEmployeeRole() {
 
 function init() {
   inquirer.prompt(questions).then((response) => {
-    
     switch (response.actions) {
       case "View Departments":
         viewDepartments();
