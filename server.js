@@ -45,7 +45,9 @@ const questions = [
 function viewDepartments() {
   console.log("Viewing Departments");
   pool.query(
-    "SELECT id as department_id, department_name FROM departments",
+    `SELECT id AS "Department ID", 
+    department_name AS "Department Name"
+    FROM departments`,
     (err, res) => {
       if (err) {
         console.error("Error Retrieving Data", err);
@@ -61,7 +63,13 @@ function viewDepartments() {
 function viewRoles() {
   console.log("Viewing Roles");
   pool.query(
-    "SELECT id, job_title, salary, department_id FROM roles",
+    `SELECT 
+    roles.id AS "Role ID",
+    roles.job_title AS "Title",
+    roles.salary AS "Salary",
+    departments.department_name AS "Department" 
+    FROM roles 
+    JOIN departments ON roles.department_id = departments.id`,
     (err, res) => {
       if (err) {
         console.error("Error Retrieving Data", err);
@@ -77,7 +85,18 @@ function viewRoles() {
 function viewEmployees() {
   console.log("Viewing Employees");
   pool.query(
-    "SELECT first_name, last_name, role_id, manager_id FROM employees",
+    `SELECT 
+    employees.id AS "Employee ID",
+    CONCAT(employees.first_name,' ',employees.last_name) AS "Employee Name", 
+    roles.job_title AS "Role",
+    roles.salary AS "Salary",
+    departments.department_name AS "Department",
+    CONCAT(manager.first_name, ' ', manager.last_name) AS "Manager Name"
+    FROM employees
+    JOIN roles ON employees.role_id = roles.id
+    JOIN departments ON roles.department_id = departments.id
+    LEFT JOIN employees AS manager ON employees.manager_id = manager.id`,
+
     (err, res) => {
       if (err) {
         console.error("Error Retrieving Data", err);
