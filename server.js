@@ -136,10 +136,29 @@ function addRole() {
       );
     });
   });
+  init();
 }
 //Add a department
 function addDepartment() {
   console.log("Adding Department");
+  const dept = [{
+    name:'department',
+    message:'What is the name of the Department?'
+  }]
+  inquirer.prompt(dept).then((response)=>{
+    const {department} = response;
+    pool.query(
+        "INSERT INTO departments (department_name) VALUES ($1)",
+        [department],
+        (err,res)=>{
+          if (err){
+            console.error("Error Adding Department",err)
+          } else {
+            console.log("Department Successfully Added")
+          }
+        })
+  })
+  init();
 }
 
 //Add an employee
