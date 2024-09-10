@@ -90,55 +90,47 @@ function viewEmployees() {
 }
 
 //Add a role
-function addRole() {
+async function addRole() {
   console.log("Adding Role");
   //Fetch departments
-  pool.query("SELECT id, department_name FROM departments", (err, res) => {
-    if (err) {
-      console.error("Error Retrieving Data", err);
-      return;
-    }
+  const dept = await pool.query("SELECT id, department_name FROM departments");
+  //Map for inquirer
+  const departments = dept.rows.map((department) => ({
+    name: department.department_name,
+    value: department.id,
+  }));
 
-    //Map for inquirer
-    const departments = res.rows.map((department) => ({
-      name: department.department_name,
-      value: department.id,
-    }));
+  const roleQ = [
+    {
+      name: "title",
+      message: "What is the Title of the role you would like to add?",
+    },
+    {
+      name: "salary",
+      message: "What is the annual salary of this role?",
+    },
+    {
+      type: "list",
+      name: "department",
+      message: "In what Department does this Role work?",
+      choices: departments,
+    },
+  ];
 
-    const roleQ = [
-      {
-        name: "title",
-        message: "What is the Title of the role you would like to add?",
-      },
-      {
-        name: "salary",
-        message: "What is the annual salary of this role?",
-      },
-      {
-        type: "list",
-        name: "department",
-        message: "In what Department does this Role work?",
-        choices: departments,
-      },
-    ];
-
-    inquirer.prompt(roleQ).then((response) => {
-      const { title, salary, department } = response;
-      pool.query(
-        "INSERT INTO roles (job_title, salary, department_id) VALUES ($1, $2, $3)",
-        [title, salary, department],
-        (err, res) => {
-          if (err) {
-            console.error("Error Adding Role", err);
-          } else {
-            console.log("Role Successfully Added");
-          }
-        }
-      );
-    });
-  });
+  try {
+    const response = await inquirer.prompt(roleQ);
+    const { title, salary, department } = response;
+    pool.query(
+      "INSERT INTO roles (job_title, salary, department_id) VALUES ($1, $2, $3)",
+      [title, salary, department]
+    );
+    console.log("Role Successfully Added");
+  } catch (err) {
+    console.error("Error Adding Role", err);
+  }
   init();
 }
+
 //Add a department
 async function addDepartment() {
   console.log("Adding Department");
@@ -152,8 +144,8 @@ async function addDepartment() {
     const response = await inquirer.prompt(dept);
     const { department } = response;
     await pool.query("INSERT INTO departments (department_name) VALUES ($1)", [
-        department,
-      ]);
+      department,
+    ]);
     console.log("Department Successfully Added");
   } catch (err) {
     console.error("Error Adding Department", err);
@@ -201,20 +193,18 @@ async function addEmployee() {
       choices: managers,
     },
   ];
-  inquirer.prompt(employeeQ).then((response) => {
+  try {
+    const response = await inquirer.prompt(employeeQ);
     const { first, last, role, manager } = response;
-    pool.query(
+    await pool.query(
       "INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES ($1,$2,$3,$4)",
-      [first, last, role, manager],
-      (err, res) => {
-        if (err) {
-          console.error("Error Adding Department", err);
-        } else {
-          console.log("Employee Successfully Added");
-        }
-      }
+      [first, last, role, manager]
     );
-  });
+    console.log("Employee Successfully Added");
+  } catch (err) {
+    console.error("Error Adding Employee", err);
+  }
+
   init();
 }
 
@@ -252,16 +242,18 @@ async function updateEmployeeRole() {
       choices: role,
     },
   ];
-
-  inquirer.prompt(updateQ).then((response) => {
+  try {
+    const response = await inquirer.prompt(updateQ);
     const { employee, role } = response;
     pool.query("UPDATE employees SET role_id = $1 WHERE id = $2", [
       role,
       employee,
     ]);
+    console.log("Employee Role Successfully Updated");
+  } catch (err) {
+    console.error("Error Updating Employee Role", err);
+  }
 
-    console.log("Employee Successfully Updated");
-  });
   init();
 }
 
