@@ -92,12 +92,14 @@ function viewEmployees() {
 //Add a role
 function addRole() {
   console.log("Adding Role");
+  //Getting departments to choose from
   pool.query("SELECT id, department_name FROM departments", (err, res) => {
     if (err) {
       console.error("Error Retrieving Data", err);
       return;
     }
 
+    //Displaying name for prompt but capturing value of id
     const departments = res.rows.map((department) => ({
       name: department.department_name,
       value: department.id,
@@ -162,8 +164,57 @@ function addDepartment() {
 }
 
 //Add an employee
-function addEmployee() {
+async function addEmployee() {
   console.log("Adding Employee");
+
+  const rolesQuery = await pool.query("SELECT id, job_title FROM roles");
+  const roles = rolesQuery.rows.map(role=>({
+    name: role.job_title,
+    value: role.id,
+  }))
+
+  const managerQuery = await pool.query("SELECT id, first_name, last_name FROM employees");
+  const managers = managerQuery.rows.map(manager=>({
+    name:`${manager.first_name} ${manager.last_name}`,
+    value: manager.id,
+  }))
+
+  const employeeQ = [
+    {
+      name:'first',
+      message:"What is the Employee's First Name?"
+    },
+    {
+      name:'last',
+      message:"What is the Employee's Last Name?"
+    },
+    {
+      type:'list',
+      name:'role',
+      message:"What is the Employee's Role?",
+      choices:roles
+    },
+    {
+      type:'list',
+      name:'manager',
+      message:"Who is this Employee's Manager?",
+      choices:managers
+    }
+  ]
+  inquirer.prompt(employeeQ).then((response)=>{
+    const {first, last, role, manager} = response;
+    pool.query(
+      "INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES ($1,$2,$3,$4)",
+        [first, last, role, manager],
+        (err,res)=>{
+          if (err){
+            console.error("Error Adding Department",err)
+          } else {
+            console.log("Employee Successfully Added")
+          }
+        })
+  })
+  init();
 }
 
 //Update an employee role
