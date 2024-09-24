@@ -7,6 +7,7 @@
 - [Usage](#usage)
 - [License](#license)
 - [Questions](#questions)
+- [Walkthrough](#walkthrough)
   
 ## Description
 
@@ -26,3 +27,7 @@ This project is protected under the MIT License
 ## Questions
 
 For more questions contact [bewtaich](https://github.com/bewtaich) at <bewtaich@gmail.com>
+
+## Walkthrough
+
+https://drive.google.com/file/d/1c5HFGxt_ykVB3n6kiypil8DupFhlxbEw/view?usp=sharing
